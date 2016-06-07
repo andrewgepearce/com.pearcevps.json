@@ -6,6 +6,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
 import com.pearcevps.utils.Output;
 
 abstract public class JsonValue {
@@ -14,7 +15,8 @@ abstract public class JsonValue {
 	protected static boolean	debug								= false;
 
 	/**
-	 * This function takes a JsonValue, and applies it to a bean field if it matches the correct type
+	 * This function takes a JsonValue, and applies it to a bean field if it
+	 * matches the correct type
 	 *
 	 * @param field
 	 * @param fieldsBean
@@ -22,13 +24,12 @@ abstract public class JsonValue {
 	 * @throws IllegalAccessException
 	 * @throws IllegalArgumentException
 	 */
-	static public void deserializeJsonValueToBean(Field field, Object fieldsBean,
-			JsonValue valueToBePlacedToBeanField) throws IllegalArgumentException, IllegalAccessException {
+	static public void deserializeJsonValueToBean(Field field, Object fieldsBean, JsonValue valueToBePlacedToBeanField)
+			throws IllegalArgumentException, IllegalAccessException {
 
 		///////////////////////
 		// Found a match of type string
-		if ((field.getType() == java.lang.String.class)
-				&& (valueToBePlacedToBeanField instanceof JsonValueString)) {
+		if ((field.getType() == java.lang.String.class) && (valueToBePlacedToBeanField instanceof JsonValueString)) {
 			Annotation[] annotations = field.getAnnotations();
 			for (int count = 0; count < annotations.length; count++) {
 				if (annotations[count].toString().contains(Json_Property.class.getCanonicalName())) {
@@ -39,8 +40,7 @@ abstract public class JsonValue {
 					field.set(fieldsBean, value);
 					if (JsonValue.debug) {
 						Output.logdebug(Output.padStr("JsonValue::deserializeJsonValueToBean: ", 60)
-								+ "Deserialising field \"" + field.getName() + "\" (of type String) to \"" + value
-								+ "\"");
+								+ "Deserialising field \"" + field.getName() + "\" (of type String) to \"" + value + "\"");
 					}
 					break;
 				}
@@ -74,8 +74,8 @@ abstract public class JsonValue {
 		else if (((field.getType() == java.lang.Long.class) || field.getType().equals(Long.TYPE))
 				&& (valueToBePlacedToBeanField instanceof JsonValueNumberLong)) {
 			if (JsonValue.debug) {
-				Output.logdebug(Output.padStr("JsonValue::deserializeJsonValueToBean: ", 60)
-						+ "Deserialising long - " + field.getName(), ">> ");
+				Output.logdebug(Output.padStr("JsonValue::deserializeJsonValueToBean: ", 60) + "Deserialising long - "
+						+ field.getName(), ">> ");
 			}
 
 			Annotation[] annotations = field.getAnnotations();
@@ -92,8 +92,7 @@ abstract public class JsonValue {
 					}
 					if (JsonValue.debug) {
 						Output.logdebug(Output.padStr("JsonValue::deserializeJsonValueToBean: ", 60)
-								+ "Deserialising field \"" + field.getName() + "\" (of type long) to "
-								+ value.toString());
+								+ "Deserialising field \"" + field.getName() + "\" (of type long) to " + value.toString());
 					}
 					break;
 				}
@@ -104,8 +103,8 @@ abstract public class JsonValue {
 		else if (((field.getType() == java.lang.Integer.class) || field.getType().equals(Integer.TYPE))
 				&& (valueToBePlacedToBeanField instanceof JsonValueNumberLong)) {
 			if (JsonValue.debug) {
-				Output.logdebug(Output.padStr("JsonValue::deserializeJsonValueToBean: ", 60)
-						+ "Deserialising integer - " + field.getName(), ">> ");
+				Output.logdebug(Output.padStr("JsonValue::deserializeJsonValueToBean: ", 60) + "Deserialising integer - "
+						+ field.getName(), ">> ");
 			}
 
 			Annotation[] annotations = field.getAnnotations();
@@ -122,8 +121,7 @@ abstract public class JsonValue {
 					}
 					if (JsonValue.debug) {
 						Output.logdebug(Output.padStr("JsonValue::deserializeJsonValueToBean: ", 60)
-								+ "Deserialising field \"" + field.getName() + "\" (of type int) to "
-								+ value.toString());
+								+ "Deserialising field \"" + field.getName() + "\" (of type int) to " + value.toString());
 					}
 					break;
 				}
@@ -134,8 +132,8 @@ abstract public class JsonValue {
 		else if (((field.getType() == java.lang.Short.class) || field.getType().equals(Short.TYPE))
 				&& (valueToBePlacedToBeanField instanceof JsonValueNumberLong)) {
 			if (JsonValue.debug) {
-				Output.logdebug(Output.padStr("JsonValue::deserializeJsonValueToBean: ", 60)
-						+ "Deserialising short - " + field.getName(), ">> ");
+				Output.logdebug(Output.padStr("JsonValue::deserializeJsonValueToBean: ", 60) + "Deserialising short - "
+						+ field.getName(), ">> ");
 			}
 			Annotation[] annotations = field.getAnnotations();
 			for (int count = 0; count < annotations.length; count++) {
@@ -151,8 +149,7 @@ abstract public class JsonValue {
 					}
 					if (JsonValue.debug) {
 						Output.logdebug(Output.padStr("JsonValue::deserializeJsonValueToBean: ", 60)
-								+ "Deserialising field \"" + field.getName() + "\" (of type short) to "
-								+ value.toString());
+								+ "Deserialising field \"" + field.getName() + "\" (of type short) to " + value.toString());
 					}
 					break;
 				}
@@ -199,8 +196,8 @@ abstract public class JsonValue {
 			value = Output.trim(value, "\"");
 			JsonValue ret = new JsonValueString(JsonString.getJavaStringFromJsonString(value));
 			if (JsonValue.debug) {
-				Output.logdebug(pad + "Level " + JsonValue.recursedDeserializedCount + ", JsonPair found: name=\""
-						+ name + "\" " + ret.getClass().getSimpleName() + "=" + ret.toString());
+				Output.logdebug(pad + "Level " + JsonValue.recursedDeserializedCount + ", JsonPair found: name=\"" + name
+						+ "\" " + ret.getClass().getSimpleName() + "=" + ret.toString());
 			}
 			return ret;
 		}
@@ -209,8 +206,8 @@ abstract public class JsonValue {
 		else if (JsonValueNumberLong.isJsonLong(value)) {
 			JsonValue ret = new JsonValueNumberLong(new Long(value).longValue());
 			if (JsonValue.debug) {
-				Output.logdebug(pad + "Level " + JsonValue.recursedDeserializedCount + ", JsonPair found: name=\""
-						+ name + "\" " + ret.getClass().getSimpleName() + "=" + ret.toString());
+				Output.logdebug(pad + "Level " + JsonValue.recursedDeserializedCount + ", JsonPair found: name=\"" + name
+						+ "\" " + ret.getClass().getSimpleName() + "=" + ret.toString());
 			}
 			return ret;
 		}
@@ -219,8 +216,8 @@ abstract public class JsonValue {
 		else if (JsonValueNumberDouble.isJsonDouble(value)) {
 			JsonValue ret = new JsonValueNumberDouble(new Double(value).doubleValue());
 			if (JsonValue.debug) {
-				Output.logdebug(pad + "Level " + JsonValue.recursedDeserializedCount + ", JsonPair found: name=\""
-						+ name + "\" " + ret.getClass().getSimpleName() + "=" + ret.toString());
+				Output.logdebug(pad + "Level " + JsonValue.recursedDeserializedCount + ", JsonPair found: name=\"" + name
+						+ "\" " + ret.getClass().getSimpleName() + "=" + ret.toString());
 			}
 			return ret;
 		}
@@ -229,8 +226,8 @@ abstract public class JsonValue {
 		else if (JsonValueTrue.isJsonBooleanTrue(value)) {
 			JsonValue ret = new JsonValueTrue();
 			if (JsonValue.debug) {
-				Output.logdebug(pad + "Level " + JsonValue.recursedDeserializedCount + ", JsonPair found: name=\""
-						+ name + "\" " + ret.getClass().getSimpleName() + "=" + ret.toString());
+				Output.logdebug(pad + "Level " + JsonValue.recursedDeserializedCount + ", JsonPair found: name=\"" + name
+						+ "\" " + ret.getClass().getSimpleName() + "=" + ret.toString());
 			}
 			return ret;
 		}
@@ -239,8 +236,8 @@ abstract public class JsonValue {
 		else if (JsonValueFalse.isJsonBooleanFalse(value)) {
 			JsonValue ret = new JsonValueFalse();
 			if (JsonValue.debug) {
-				Output.logdebug(pad + "Level " + JsonValue.recursedDeserializedCount + ", JsonPair found: name=\""
-						+ name + "\" " + ret.getClass().getSimpleName() + "=" + ret.toString());
+				Output.logdebug(pad + "Level " + JsonValue.recursedDeserializedCount + ", JsonPair found: name=\"" + name
+						+ "\" " + ret.getClass().getSimpleName() + "=" + ret.toString());
 			}
 			return ret;
 		}
@@ -249,8 +246,8 @@ abstract public class JsonValue {
 		else if (JsonValueNull.isJsonNull(value)) {
 			JsonValue ret = new JsonValueNull();
 			if (JsonValue.debug) {
-				Output.logdebug(pad + "Level " + JsonValue.recursedDeserializedCount + ", JsonPair found: name=\""
-						+ name + "\" " + ret.getClass().getSimpleName() + "=" + ret.toString());
+				Output.logdebug(pad + "Level " + JsonValue.recursedDeserializedCount + ", JsonPair found: name=\"" + name
+						+ "\" " + ret.getClass().getSimpleName() + "=" + ret.toString());
 			}
 			return ret;
 		}
@@ -259,8 +256,8 @@ abstract public class JsonValue {
 		else if (JsonValueObject.isJsonObject(value)) {
 			JsonValueObject ret = new JsonValueObject();
 			if (JsonValue.debug) {
-				Output.logdebug(pad + "Level " + JsonValue.recursedDeserializedCount + ", JsonPair found: name=\""
-						+ name + "\" " + ret.getClass().getSimpleName() + "=" + ret.toString());
+				Output.logdebug(pad + "Level " + JsonValue.recursedDeserializedCount + ", JsonPair found: name=\"" + name
+						+ "\" " + ret.getClass().getSimpleName() + "=" + ret.toString());
 			}
 			ret.getJsonPairstoDeserialize(value);
 			return ret;
@@ -270,8 +267,8 @@ abstract public class JsonValue {
 		else if (JsonValueArray.isJsonArray(value)) {
 			JsonValueArray ret = new JsonValueArray();
 			if (JsonValue.debug) {
-				Output.logdebug(pad + "Level " + JsonValue.recursedDeserializedCount + ", JsonPair found: name=\""
-						+ name + "\" " + ret.getClass().getSimpleName() + "=" + ret.toString());
+				Output.logdebug(pad + "Level " + JsonValue.recursedDeserializedCount + ", JsonPair found: name=\"" + name
+						+ "\" " + ret.getClass().getSimpleName() + "=" + ret.toString());
 			}
 			JsonValue.recursedDeserializedCount++;
 			List<JsonValue> values = new LinkedList<JsonValue>();
