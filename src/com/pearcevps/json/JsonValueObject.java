@@ -67,7 +67,7 @@ public class JsonValueObject extends JsonValue {
 	 * assign the JSON value to the bean field.</li>
 	 * <p>
 	 *
-	 * @param jsonObjectSting
+	 * @param jsonObjectString
 	 * @param bean
 	 * @return
 	 * @throws IllegalArgumentException
@@ -77,7 +77,7 @@ public class JsonValueObject extends JsonValue {
 	 * @throws InvocationTargetException
 	 * @throws ClassNotFoundException
 	 */
-	static public Object deserializeJsonStringToAnObject(String jsonObjectSting, Object bean)
+	static public Object deserializeJsonStringToAnObject(String jsonObjectString, Object bean)
 			throws IllegalArgumentException, IllegalAccessException, JsonException, InstantiationException,
 			InvocationTargetException, ClassNotFoundException {
 		if (bean == null) {
@@ -89,10 +89,10 @@ public class JsonValueObject extends JsonValue {
 		if (JsonValue.debug) {
 			Output.logdebug(Output.padStr("JsonValueObject::deserializeJsonStringToAnObject: ", 60)
 					+ "Getting JSON pairs to deserialize from the JSON object string..."
-					+ jsonObjectSting.replaceAll("\n", "").replaceAll("    ", " "));
+					+ jsonObjectString.replaceAll("\n", "").replaceAll("    ", " "));
 		}
 		JsonValueObject targetObject = new JsonValueObject();
-		targetObject.getJsonPairstoDeserialize(jsonObjectSting);
+		targetObject.getJsonPairstoDeserialize(jsonObjectString);
 
 		////////////////////
 		// Initialize bean object fields to de-serialize values into
