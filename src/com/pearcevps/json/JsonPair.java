@@ -57,6 +57,7 @@ public class JsonPair {
 
 	@Override
 	public String toString() {
+		this.printNullLocal = JsonPair.printNull;
 		if ((this.name == null) && !this.printNullLocal) {
 			return "";
 		}
@@ -84,8 +85,9 @@ public class JsonPair {
 	}
 
 	/**
-	 * The class reads a Java POJO's fields, and returns a list of Json Pairs that describe these
-	 * fields and their values. The current supported field types, parsed in this order, are:
+	 * The class reads a Java POJO's fields, and returns a list of Json Pairs
+	 * that describe these fields and their values. The current supported field
+	 * types, parsed in this order, are:
 	 * <ul>
 	 * <li>String</li>
 	 * <li>Long class or long primitive</li>
@@ -97,17 +99,18 @@ public class JsonPair {
 	 * <li>Boolean class or boolean primitive</li>
 	 * <li>java.net.URI class</li>
 	 * <li>List&lt;String&gt; class</li>
-	 * <li>Map&lt;String,Object&gt;, where the key Strings are used to get the JsonPair names, and
-	 * the value Objects are extracted using toString(). The name of the map is not used when
-	 * unwrapped.</li>
+	 * <li>Map&lt;String,Object&gt;, where the key Strings are used to get the
+	 * JsonPair names, and the value Objects are extracted using toString(). The
+	 * name of the map is not used when unwrapped.</li>
 	 * <li>Any class that can be cast to an Object</li>
 	 * </ul>
 	 *
-	 * All fields have to be annotated using {@link Json_Property} in order to be processed. NOTE: At
-	 * the moment, the fields have to be public to be read.
+	 * All fields have to be annotated using {@link Json_Property} in order to be
+	 * processed. NOTE: At the moment, the fields have to be public to be read.
 	 *
 	 * @param beanObj
-	 *           The POJO that is to be read to create the list of JsonPair objects
+	 *           The POJO that is to be read to create the list of JsonPair
+	 *           objects
 	 * @return The list of JsonPair objects parsed from the POJO
 	 * @throws IllegalAccessException
 	 * @throws IllegalArgumentException
@@ -123,14 +126,13 @@ public class JsonPair {
 			thisclass = thisclass.getSuperclass();
 			fields.addAll(0, Arrays.asList(thisclass.getDeclaredFields()));
 		}
-	
+
 		for (Member mbr : fields.toArray(new Field[0])) {
 			if (mbr instanceof Field) {
 				Field f = (Field) mbr;
 				Annotation[] annotations = f.getAnnotations();
 				for (int count = 0; count < annotations.length; count++) {
-					if (annotations[count].toString()
-							.contains(Json_IgnoreFieldsInThisList.class.getCanonicalName())) {
+					if (annotations[count].toString().contains(Json_IgnoreFieldsInThisList.class.getCanonicalName())) {
 						if (!Modifier.isPublic(f.getModifiers())) {
 							f.setAccessible(true);
 						}
@@ -150,7 +152,7 @@ public class JsonPair {
 				}
 			}
 		}
-	
+
 		for (Member mbr : fields.toArray(new Field[0])) {
 			// For the all bean fields
 			if (mbr instanceof Field) {
@@ -180,19 +182,18 @@ public class JsonPair {
 							f.setAccessible(true);
 						}
 					}
-					if (annotations[count].toString()
-							.contains(Json_IgnoreFieldsInThisList.class.getCanonicalName())) {
+					if (annotations[count].toString().contains(Json_IgnoreFieldsInThisList.class.getCanonicalName())) {
 						processField = false;
 						if (!Modifier.isPublic(f.getModifiers())) {
 							f.setAccessible(true);
 						}
 					}
 				}
-	
+
 				if (ignoredFields.contains(f.getName())) {
 					processField = false;
 				}
-	
+
 				if (processField) {
 					JsonPair pair = null;
 					// String
@@ -384,7 +385,8 @@ public class JsonPair {
 							// Iterate through the keys of this map
 							for (Object keyObj : val.keySet().toArray()) {
 								///////////////////////////////////
-								// Provided the map key is a string, we need to create a JSON pair with this
+								// Provided the map key is a string, we need to create a
+								/////////////////////////////////// JSON pair with this
 								// map key as the pair name
 								if (keyObj instanceof java.lang.String) {
 									/////////////////////////////
@@ -406,7 +408,8 @@ public class JsonPair {
 										ret.add(new JsonPair(JsonString.createJsonString(keyObj.toString()), array));
 									}
 									///////////////////////////////
-									// The value of the map is not a List, but should be treated as a bean
+									// The value of the map is not a List, but should be
+									/////////////////////////////// treated as a bean
 									else if (mapValuesAreBeans && (valObj != null)) {
 										JsonValueObject valBean = JsonValueObject.createObjectFromBeanInternal(valObj);
 										pair = createPairObject(keyObj.toString(), valBean);
@@ -451,12 +454,12 @@ public class JsonPair {
 									// The value in a boolean
 									else if ((valObj != null) && (valObj instanceof Boolean)) {
 										Boolean valObjCast = (Boolean) valObj;
-										pair = createPairBoolean(keyObj.toString(),
-												valObjCast.booleanValue());
+										pair = createPairBoolean(keyObj.toString(), valObjCast.booleanValue());
 										ret.add(pair);
 									}
 									////////////////////////////////
-									// The value should be a string. The value vould be a String, Chat, URI,
+									// The value should be a string. The value vould be a
+									//////////////////////////////// String, Chat, URI,
 									// etc.
 									else if (valObj != null) {
 										pair = createPairString(keyObj.toString(), valObj.toString());
@@ -489,8 +492,7 @@ public class JsonPair {
 					if (pair != null) {
 						if (required) {
 							if (pair.getValue().isNull()) {
-								throw new JsonException(
-										"Json Pair " + pair.getName() + " must not have a null value");
+								throw new JsonException("Json Pair " + pair.getName() + " must not have a null value");
 							}
 						}
 						ret.add(pair);
@@ -582,8 +584,8 @@ public class JsonPair {
 	}
 
 	/**
-	 * Create a JSON name value pair, where the value is a single character represented as a JSON
-	 * string
+	 * Create a JSON name value pair, where the value is a single character
+	 * represented as a JSON string
 	 *
 	 * @param name
 	 * @param value
