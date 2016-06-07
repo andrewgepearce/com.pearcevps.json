@@ -14,6 +14,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import com.pearcevps.utils.Output;
 
 /**
@@ -22,63 +23,48 @@ import com.pearcevps.utils.Output;
  */
 public class JsonValueObject extends JsonValue {
 
-	/**
-	 * The JSON pairs that form this JSON object
-	 */
-	private List<JsonPair>			members							= new LinkedList<JsonPair>();
-	static Map<String, Integer>	beanFieldRecursionValues	= new HashMap<String, Integer>();
+	static Map<String, Integer> beanFieldRecursionValues = new HashMap<String, Integer>();
 
 	/**
-	 * Default constructor
-	 */
-	public JsonValueObject() {
-		super();
-		this.members = new LinkedList<JsonPair>();
-	}
-
-	/**
-	 * Constructor for the JSON object
+	 * Create a JsonObject from a bean
 	 *
-	 * @param members
-	 *           JSON pairs to insantiate the JSON object with
+	 * @param beanObj
+	 * @return
+	 * @throws JsonException
+	 * @throws IllegalArgumentException
+	 * @throws IllegalAccessException
 	 */
-	public JsonValueObject(List<JsonPair> members) {
-		super();
-		if (members != null) {
-			this.members = members;
-		} else {
-			this.members = new LinkedList<JsonPair>();
-		}
+	static public JsonValueObject createObjectFromBean(Object beanObj)
+			throws JsonException, IllegalArgumentException, IllegalAccessException {
+		beanFieldRecursionValues.clear();
+		return JsonValueObject.createObjectFromBeanInternal(beanObj);
 	}
 
 	/**
-	 * Do the pairs within this JSON object print null values when print is called?
-	 * 
-	 * @return boolean true if null values will be printed
+	 * Create a JsonObject from a bean
+	 *
+	 * @param beanObj
+	 * @return
+	 * @throws JsonException
+	 * @throws IllegalArgumentException
+	 * @throws IllegalAccessException
 	 */
-	public static boolean isPrintNull() {
-		return JsonPair.isPrintNull();
+	static public JsonValueObject createObjectFromBean(Object beanObj, Map<String, Integer> beanFieldRecursionLimits)
+			throws JsonException, IllegalArgumentException, IllegalAccessException {
+		beanFieldRecursionValues.clear();
+		return JsonValueObject.createObjectFromBeanInternal(beanObj);
 	}
 
 	/**
-	 * Should the JSON pairs within this object print if their value is null?
-	 * 
-	 * @param printNull
-	 *           True, if null values should be printed. False otherwise.
-	 */
-	public static void setPrintNull(boolean printNull) {
-		JsonPair.setPrintNull(printNull);
-	}
-
-	/**
-	 * This function takes a string that represents a a JSON object, i.e. starts with and { and ends
-	 * with }, and then:
+	 * This function takes a string that represents a a JSON object, i.e. starts
+	 * with and { and ends with }, and then:
 	 * <li>Gets the JSON pairs for this JsonValueObject - @see
-	 * {@link com.pearcevps.json.JsonValueObject#getJsonPairstoDeserialize(String)}</li>
-	 * <li>Gets the fields into which to deserialise the JSON pairs. This includes the fields in the
-	 * beans parent classes.</li>
-	 * <li>Loop over each JSON pair, and (if there is a name match to a field) assign the JSON value
-	 * to the bean field.</li>
+	 * {@link com.pearcevps.json.JsonValueObject#getJsonPairstoDeserialize(String)}
+	 * </li>
+	 * <li>Gets the fields into which to deserialise the JSON pairs. This
+	 * includes the fields in the beans parent classes.</li>
+	 * <li>Loop over each JSON pair, and (if there is a name match to a field)
+	 * assign the JSON value to the bean field.</li>
 	 * <p>
 	 *
 	 * @param jsonObjectSting
@@ -130,13 +116,13 @@ public class JsonValueObject extends JsonValue {
 			for (Field f : allfields) {
 				fields += ("[" + f.getName() + "] ");
 			}
-			Output.logdebug(
-					Output.padStr("JsonValueObject::deserializeJsonStringToAnObject: ", 60) + " ... found "
-							+ allfields.size() + " fields in bean \"" + bean.getClass().getName() + "\": " + fields);
+			Output.logdebug(Output.padStr("JsonValueObject::deserializeJsonStringToAnObject: ", 60) + " ... found "
+					+ allfields.size() + " fields in bean \"" + bean.getClass().getName() + "\": " + fields);
 		}
 
 		///////////////////////
-		// Loop over the pairs in this JsonValue object, assign them to fields if they are equal
+		// Loop over the pairs in this JsonValue object, assign them to fields if
+		/////////////////////// they are equal
 		Set<String> pairNamesMatched = new HashSet<>();
 		for (JsonPair pair : targetObject.getMembers()) {
 			String name = JsonString.getJavaStringFromJsonString(pair.getName().getJsonStr());
@@ -179,15 +165,17 @@ public class JsonValueObject extends JsonValue {
 		}
 
 		////////////////////////////////
-		// Try to place all unused pairs into the bean, scanning the unused fields for a matching map
+		// Try to place all unused pairs into the bean, scanning the unused fields
+		//////////////////////////////// for a matching map
 		JsonValueObject.placeRemainingPairsIntoMaps(bean, unusedFields, unmatched);
 
 		return bean;
 	}
 
 	/**
-	 * Is this a JSON object, i.e. does the string start with { and end with }. This function does
-	 * not check anything is valid withon the scope of the object.
+	 * Is this a JSON object, i.e. does the string start with { and end with }.
+	 * This function does not check anything is valid withon the scope of the
+	 * object.
 	 *
 	 * @param value
 	 * @return
@@ -204,6 +192,16 @@ public class JsonValueObject extends JsonValue {
 			return true;
 		}
 		return false;
+	}
+
+	/**
+	 * Do the pairs within this JSON object print null values when print is
+	 * called?
+	 * 
+	 * @return boolean true if null values will be printed
+	 */
+	static public boolean isPrintNull() {
+		return JsonPair.isPrintNull();
 	}
 
 	/**
@@ -230,7 +228,7 @@ public class JsonValueObject extends JsonValue {
 				insertionPoints.put(insertionPoint, level);
 			}
 			if ((input.charAt(i) == '}') && !inQuote) {
-				//int insertionPoint = i - 1;
+				// int insertionPoint = i - 1;
 				int insertionPoint = i;
 				insertionPoints.put(insertionPoint, --level);
 			}
@@ -239,7 +237,7 @@ public class JsonValueObject extends JsonValue {
 				insertionPoints.put(insertionPoint, ++level);
 			}
 			if (input.charAt(i) == ']') {
-				//int insertionPoint = i - 1;
+				// int insertionPoint = i - 1;
 				int insertionPoint = i;
 				insertionPoints.put(insertionPoint, --level);
 			}
@@ -255,10 +253,37 @@ public class JsonValueObject extends JsonValue {
 			} else {
 				ret += JsonValueObject.getNewIndent(insertionPoints.get(i), indent);
 				ret += input.charAt(i); // Was before the new indent line
-				
+
 			}
 		}
 
+		return ret;
+	}
+
+	/**
+	 * Should the JSON pairs within this object print if their value is null?
+	 * 
+	 * @param printNull
+	 *           True, if null values should be printed. False otherwise.
+	 */
+	static public void setPrintNull(boolean printNull) {
+		JsonPair.setPrintNull(printNull);
+	}
+
+	/**
+	 * Create a JSON object from a bean (a class with simple public types)
+	 *
+	 * @param bean
+	 * @return
+	 * @throws JsonException
+	 * @throws IllegalAccessException
+	 * @throws IllegalArgumentException
+	 */
+	static protected JsonValueObject createObjectFromBeanInternal(Object bean)
+			throws IllegalArgumentException, IllegalAccessException, JsonException {
+		JsonValueObject ret = new JsonValueObject();
+		List<JsonPair> fields = JsonPair.createStringPairsFromBean(bean);
+		ret.addPairs(fields);
 		return ret;
 	}
 
@@ -328,21 +353,23 @@ public class JsonValueObject extends JsonValue {
 	}
 
 	/**
-	 * This function takes a list of unmatched JSON Pairs, and fields within a bean, and tries to
-	 * place these unmatched pairs into a map values that can take it.<br>
-	 * <b>WARNING:</b> it is required that an object into which the objects are placed only contains
-	 * one Map. An exception will be thrown if there is more than one Map in the object.
+	 * This function takes a list of unmatched JSON Pairs, and fields within a
+	 * bean, and tries to place these unmatched pairs into a map values that can
+	 * take it.<br>
+	 * <b>WARNING:</b> it is required that an object into which the objects are
+	 * placed only contains one Map. An exception will be thrown if there is more
+	 * than one Map in the object.
 	 *
 	 * @param bean
 	 *           The bean which can contain the Map fields
 	 * @param fields
-	 *           The fields of the bean, which shall be scanned to get the Map values into which to
-	 *           place the JSON pairs.
+	 *           The fields of the bean, which shall be scanned to get the Map
+	 *           values into which to place the JSON pairs.
 	 * @param unmatchedPairs
 	 *           A list of JSON pairs that need to be placed into Maps.
 	 * @throws JsonException
-	 *            Thrown if the bean contains more than on Map into which to place the unmatched JSON
-	 *            pairs.
+	 *            Thrown if the bean contains more than on Map into which to
+	 *            place the unmatched JSON pairs.
 	 * @throws IllegalAccessException
 	 * @throws IllegalArgumentException
 	 * @throws ClassNotFoundException
@@ -350,9 +377,9 @@ public class JsonValueObject extends JsonValue {
 	 * @throws InstantiationException
 	 */
 	@SuppressWarnings({ "unused", "rawtypes" })
-	private static void placeRemainingPairsIntoMaps(Object bean, List<Field> fields,
-			List<JsonPair> unmatchedPairs) throws JsonException, IllegalArgumentException,
-			IllegalAccessException, InstantiationException, InvocationTargetException, ClassNotFoundException {
+	static private void placeRemainingPairsIntoMaps(Object bean, List<Field> fields, List<JsonPair> unmatchedPairs)
+			throws JsonException, IllegalArgumentException, IllegalAccessException, InstantiationException,
+			InvocationTargetException, ClassNotFoundException {
 
 		///////////////////////
 		// Throw an exception if we a NULL bean or set of bean fields.
@@ -367,8 +394,10 @@ public class JsonValueObject extends JsonValue {
 		}
 
 		///////////////////////
-		// Boolean flags to show we have found a JsonProperty map field to assign pairs to. This may
-		// either be Maps we treat as JSON objects, or as Java class representations of primitive
+		// Boolean flags to show we have found a JsonProperty map field to assign
+		/////////////////////// pairs to. This may
+		// either be Maps we treat as JSON objects, or as Java class
+		/////////////////////// representations of primitive
 		// types
 		boolean foundJavaTypeMap = false;
 		boolean foundPojoMap = false;
@@ -400,19 +429,21 @@ public class JsonValueObject extends JsonValue {
 				}
 
 				///////////////////////////
-				// Only progress if this is is a Map field that is required to be de-serialized
+				// Only progress if this is is a Map field that is required to be
+				/////////////////////////// de-serialized
 				if (jsonProperty) {
 
 					///////////////////////
-					// We have already assigned a Map, give a warning that we can only support one.
+					// We have already assigned a Map, give a warning that we can
+					/////////////////////// only support one.
 					if (foundPojoMap || foundJavaTypeMap) {
-						throw new JsonException(
-								"Can only deserialize to a class with one @Json_Parameter Map. Class "
-										+ bean.getClass().getName() + " has at least two.");
+						throw new JsonException("Can only deserialize to a class with one @Json_Parameter Map. Class "
+								+ bean.getClass().getName() + " has at least two.");
 					}
 
 					/////////////////////
-					// Get the Map parameterized types, and check that that this one that can really be
+					// Get the Map parameterized types, and check that that this one
+					///////////////////// that can really be
 					// assigned a JSON pair.
 					if (field.getGenericType() instanceof ParameterizedType) {
 						String key = null;
@@ -445,64 +476,55 @@ public class JsonValueObject extends JsonValue {
 			if (mapValueClass.equals(java.lang.String.class)) {
 				Map<String, String> map = new HashMap<>();
 				for (JsonPair pair : unmatchedPairs) {
-					pair.getValue().deserializeJsonValueToMapValue(map, pair.getName().getJavaString(),
-							mapValueClass);
+					pair.getValue().deserializeJsonValueToMapValue(map, pair.getName().getJavaString(), mapValueClass);
 				}
 				mapfield.set(bean, map);
 			} else if (mapValueClass.equals(java.lang.Integer.class)) {
 				Map<String, Integer> map = new HashMap<>();
 				for (JsonPair pair : unmatchedPairs) {
-					pair.getValue().deserializeJsonValueToMapValue(map, pair.getName().getJavaString(),
-							mapValueClass);
+					pair.getValue().deserializeJsonValueToMapValue(map, pair.getName().getJavaString(), mapValueClass);
 				}
 				mapfield.set(bean, map);
 			} else if (mapValueClass.equals(java.lang.Long.class)) {
 				Map<String, Long> map = new HashMap<>();
 				for (JsonPair pair : unmatchedPairs) {
-					pair.getValue().deserializeJsonValueToMapValue(map, pair.getName().getJavaString(),
-							mapValueClass);
+					pair.getValue().deserializeJsonValueToMapValue(map, pair.getName().getJavaString(), mapValueClass);
 				}
 				mapfield.set(bean, map);
 			} else if (mapValueClass.equals(java.lang.Short.class)) {
 				Map<String, Short> map = new HashMap<>();
 				for (JsonPair pair : unmatchedPairs) {
-					pair.getValue().deserializeJsonValueToMapValue(map, pair.getName().getJavaString(),
-							mapValueClass);
+					pair.getValue().deserializeJsonValueToMapValue(map, pair.getName().getJavaString(), mapValueClass);
 				}
 				mapfield.set(bean, map);
 			} else if (mapValueClass.equals(java.lang.Double.class)) {
 				Map<String, Double> map = new HashMap<>();
 				for (JsonPair pair : unmatchedPairs) {
-					pair.getValue().deserializeJsonValueToMapValue(map, pair.getName().getJavaString(),
-							mapValueClass);
+					pair.getValue().deserializeJsonValueToMapValue(map, pair.getName().getJavaString(), mapValueClass);
 				}
 				mapfield.set(bean, map);
 			} else if (mapValueClass.equals(java.lang.Float.class)) {
 				Map<String, Float> map = new HashMap<>();
 				for (JsonPair pair : unmatchedPairs) {
-					pair.getValue().deserializeJsonValueToMapValue(map, pair.getName().getJavaString(),
-							mapValueClass);
+					pair.getValue().deserializeJsonValueToMapValue(map, pair.getName().getJavaString(), mapValueClass);
 				}
 				mapfield.set(bean, map);
 			} else if (mapValueClass.equals(java.lang.Character.class)) {
 				Map<String, Character> map = new HashMap<>();
 				for (JsonPair pair : unmatchedPairs) {
-					pair.getValue().deserializeJsonValueToMapValue(map, pair.getName().getJavaString(),
-							mapValueClass);
+					pair.getValue().deserializeJsonValueToMapValue(map, pair.getName().getJavaString(), mapValueClass);
 				}
 				mapfield.set(bean, map);
 			} else if (mapValueClass.equals(java.lang.Boolean.class)) {
 				Map<String, Boolean> map = new HashMap<>();
 				for (JsonPair pair : unmatchedPairs) {
-					pair.getValue().deserializeJsonValueToMapValue(map, pair.getName().getJavaString(),
-							mapValueClass);
+					pair.getValue().deserializeJsonValueToMapValue(map, pair.getName().getJavaString(), mapValueClass);
 				}
 				mapfield.set(bean, map);
 			} else if (foundPojoMap) {
 				Map<String, Object> map = new HashMap<>();
 				for (JsonPair pair : unmatchedPairs) {
-					pair.getValue().deserializeJsonValueToMapValue(map, pair.getName().getJavaString(),
-							mapValueClass);
+					pair.getValue().deserializeJsonValueToMapValue(map, pair.getName().getJavaString(), mapValueClass);
 				}
 				mapfield.set(bean, map);
 			} else {
@@ -510,14 +532,19 @@ public class JsonValueObject extends JsonValue {
 					for (JsonPair pair : unmatchedPairs) {
 						Output.logdebug(Output.padStr("JsonValueObject::placeRemainingPairsIntoMaps: ", 60)
 								+ "Don't recognise map value class " + mapValueClass.getName()
-								+ " to desrialize unmatched Json Pairs to. Ignoring pair "
-								+ pair.getName().getJavaString() + ".");
+								+ " to desrialize unmatched Json Pairs to. Ignoring pair " + pair.getName().getJavaString()
+								+ ".");
 					}
 				}
 			}
 		}
 
 	}
+
+	/**
+	 * The JSON pairs that form this JSON object
+	 */
+	private List<JsonPair> members = new LinkedList<JsonPair>();
 
 	/**
 	 * Add a JSON Pair (i.e. name and value) to this JSON object.
@@ -542,13 +569,13 @@ public class JsonValueObject extends JsonValue {
 	/*
 	 * (non-Javadoc)
 	 *
-	 * @see com.pearcevps.json.JsonValue#deserializeJsonValueToBean(java.lang.reflect.Field,
-	 * java.lang.Object)
+	 * @see
+	 * com.pearcevps.json.JsonValue#deserializeJsonValueToBean(java.lang.reflect.
+	 * Field, java.lang.Object)
 	 */
 	@Override
-	public void deserializeJsonValueToBean(Field field, Object fieldsBean)
-			throws JsonException, InstantiationException, IllegalAccessException, IllegalArgumentException,
-			InvocationTargetException, ClassNotFoundException {
+	public void deserializeJsonValueToBean(Field field, Object fieldsBean) throws JsonException, InstantiationException,
+			IllegalAccessException, IllegalArgumentException, InvocationTargetException, ClassNotFoundException {
 		if ((field == null) || (fieldsBean == null)) {
 			throw new JsonException("Can't deserialize into a null field or bean");
 		}
@@ -579,7 +606,8 @@ public class JsonValueObject extends JsonValue {
 						defaultConstructor = constructors[ci];
 						break;
 					}
-					// // If we have 1 parameter in the constructor, and it is the type of the bean class
+					// // If we have 1 parameter in the constructor, and it is the
+					// type of the bean class
 					// // then the class is an an embedded class
 					// System.err.println("FB: " + fieldsBean.getClass().getName());
 					// System.err.println("PA: " + parameters[0].getName());
@@ -587,7 +615,8 @@ public class JsonValueObject extends JsonValue {
 
 					if ((parameters.length == 1) && parameters[0].isAssignableFrom(fieldsBean.getClass())) {
 
-						// if ((parameters.length == 1) && parameters[0].equals(fieldsBean.getClass())) {
+						// if ((parameters.length == 1) &&
+						// parameters[0].equals(fieldsBean.getClass())) {
 						// We have an embedded class
 						innerClassDefaultConstructor = constructors[ci];
 						break;
@@ -595,8 +624,7 @@ public class JsonValueObject extends JsonValue {
 				}
 				if ((defaultConstructor == null) && (innerClassDefaultConstructor == null)) {
 					throw new JsonException("Cannot deserialize to a bean member or inner class of type \""
-							+ fieldsBean.getClass().getCanonicalName()
-							+ "\" that does not have a default constructor");
+							+ fieldsBean.getClass().getCanonicalName() + "\" that does not have a default constructor");
 				}
 				Object containedBean = null;
 				if (defaultConstructor != null) {
@@ -631,22 +659,22 @@ public class JsonValueObject extends JsonValue {
 		}
 
 		if (debug) {
-			Output.logdebug(Output.padStr("JsonValueObject::deserializeJsonValueToMapValue: ", 60)
-					+ "Trying to deserialize field \"" + name + "\" into a map value class of type "
-					+ mapValueClass.getName() + "...");
+			Output.logdebug(
+					Output.padStr("JsonValueObject::deserializeJsonValueToMapValue: ", 60) + "Trying to deserialize field \""
+							+ name + "\" into a map value class of type " + mapValueClass.getName() + "...");
 		}
 
 		Object o = deserializeJsonStringToAnObject(this.toString(), mapValueClass.newInstance());
 		map.put(name, o);
 		if (JsonValue.debug) {
-			Output.logdebug(
-					Output.padStr("JsonValueObject::deserializeJsonValueToMapValue: ", 60) + "Deserializing \""
-							+ name + "\" with value \"" + this.toString() + "\" into Map<String, Object>");
+			Output.logdebug(Output.padStr("JsonValueObject::deserializeJsonValueToMapValue: ", 60) + "Deserializing \""
+					+ name + "\" with value \"" + this.toString() + "\" into Map<String, Object>");
 		}
 	}
 
 	/**
-	 * This class reads a JSON string, and populates this classes member JsonPairs from the string
+	 * This class reads a JSON string, and populates this classes member
+	 * JsonPairs from the string
 	 *
 	 * @param str
 	 *           The string containing the JSON to parse
@@ -656,8 +684,7 @@ public class JsonValueObject extends JsonValue {
 		JsonValue.recursedDeserializedCount++;
 
 		String result = JsonValueObject.getJsonStringFromObjectToDeserialize(str);
-		Output.logdebug(
-				Output.padStr("JsonValueObject::getJsonPairstoDeserialize: ", 60) + result.replaceAll("\n", " "));
+		Output.logdebug(Output.padStr("JsonValueObject::getJsonPairstoDeserialize: ", 60) + result.replaceAll("\n", " "));
 		String[] pairs = result.split(",\n");
 		// Loop over the pairs
 		for (int i = 0; i < pairs.length; i++) {
@@ -749,50 +776,25 @@ public class JsonValueObject extends JsonValue {
 	}
 
 	/**
-	 * Create a JSON object from a bean (a class with simple public types)
-	 *
-	 * @param bean
-	 * @return
-	 * @throws JsonException
-	 * @throws IllegalAccessException
-	 * @throws IllegalArgumentException
+	 * Default constructor
 	 */
-	static JsonValueObject createObjectFromBeanInternal(Object bean)
-			throws IllegalArgumentException, IllegalAccessException, JsonException {
-		JsonValueObject ret = new JsonValueObject();
-		List<JsonPair> fields = JsonPair.createStringPairsFromBean(bean);
-		ret.addPairs(fields);
-		return ret;
+	public JsonValueObject() {
+		super();
+		this.members = new LinkedList<JsonPair>();
 	}
 
 	/**
-	 * Create a JsonObject from a bean
+	 * Constructor for the JSON object
 	 *
-	 * @param beanObj
-	 * @return
-	 * @throws JsonException
-	 * @throws IllegalArgumentException
-	 * @throws IllegalAccessException
+	 * @param members
+	 *           JSON pairs to insantiate the JSON object with
 	 */
-	static public JsonValueObject createObjectFromBean(Object beanObj,
-			Map<String, Integer> beanFieldRecursionLimits)
-			throws JsonException, IllegalArgumentException, IllegalAccessException {
-		beanFieldRecursionValues.clear();
-		return JsonValueObject.createObjectFromBeanInternal(beanObj);
-	}
-
-	/**
-	 * Create a JsonObject from a bean
-	 *
-	 * @param beanObj
-	 * @return
-	 * @throws JsonException
-	 * @throws IllegalArgumentException
-	 * @throws IllegalAccessException
-	 */
-	static public JsonValueObject createObjectFromBean(Object beanObj)
-			throws JsonException, IllegalArgumentException, IllegalAccessException {
-		beanFieldRecursionValues.clear();
-		return JsonValueObject.createObjectFromBeanInternal(beanObj);
+	public JsonValueObject(List<JsonPair> members) {
+		super();
+		if (members != null) {
+			this.members = members;
+		} else {
+			this.members = new LinkedList<JsonPair>();
+		}
 	}
 }
