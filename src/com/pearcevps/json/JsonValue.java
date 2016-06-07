@@ -290,6 +290,13 @@ abstract public class JsonValue {
 		return JsonValue.debug;
 	}
 
+	/**
+	 * Turns on debugging for this JsonValue. WARNING: also turns on general
+	 * logging output from the {@link com.pearcevps.utils.Output} utlity.
+	 * 
+	 * @param i_debug
+	 *           true if logging is enabled; false otherwise
+	 */
 	public static void setDebug(boolean i_debug) {
 		JsonValue.debug = i_debug;
 		Output.printdebug = i_debug;
